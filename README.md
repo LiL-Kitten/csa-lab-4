@@ -11,34 +11,71 @@
 ## Форма Бэкуса-Наура:
 
 ```ebnf
-<programm> ::= {data_section} {code_section} 
-			 | {code_section} {data_section}
+<programm> ::= [section_data] <section_code>
+			 | <section_code> [section_data]
 
-<data_section> ::= ".data\n" [argument_for_data]
+<section_data> ::= ".data\n" {data_declaration}
 
-<argument_for_data> ::= <label> <datatype> <data> "\n" [argument_for_data]
+<data_declaration> ::= <label> <datatype> <data> "\n"
 
 <label> ::= label_name":"
 
 <data_type> ::= ".byte" 
 			  | ".word" 
 
-<data> ::= <integer> 
-		 | <addres> 
-		 | {char} 
-		 | <asci_symbol>
+<data> ::= integer 
+		 | address 
+		 | char
+		 | array_char
 
-<code_section> ::= ".text\n" {function}
+<section_code> ::= ".text\n" {function}
 
-<function> ::= <label_start> <instruction> {instruction} [function] 
-			 | <label> <instruction> {instruction} [function]
+<function> ::= <label_start> 
+			 | <label> 
+			 | <instruction> 
+
 <label_start> ::= "_start:"
-<instruction> ::= <name_instruction> [argument_for_instruction] "\n"
-<argument_for_instruction> ::= [<integer> 
-							  | <char> 
-							  | <label_name>]
+<instruction> ::= <op0> "\n"
+				| <op1> label_name "\n"
+				| <op1> address "\n"
+				| <op1> integer "\n"
+				| <op1> char "\n"
+				| <op2> label_name "\n"
+				| <op2> address "\n"
 
-эт надо будет разделить и подумать над именами 
+<op0> ::= "not"
+		| "shift_l" 
+		| "shift_r" 
+		| "halt"
+
+<op1> ::= "add" 
+		| "sub"
+		| "cmp"
+		| "div"
+		| "rem"
+		| "and"
+		| "or"
+		| "xor"
+
+<op2> ::= "load"
+		| "stroe"
+		| "bnez" 
+		| "beqz" 
+		| "bgt" 
+		| "ble" 
+		| "bvs" 
+		| "bvc" 
+		| "bcs" 
+		| "bcc"
+		| "jmp"
+
+label_name ::= <any of "a-z A-Z _"> { <any of "a-z A-Z 0-9 _"> }
+integer ::= ["-"] <any of "0-9"> { <any of "0-9"> }
+char ::= <any symbol except>
+array_char ::= '{ <any symbol except> }-' 
+			 | '<any of "a-z A-Z">' {"," <any of "a-z A-Z">}-
+address ::= 
+
 
 
 ``` 
@@ -46,33 +83,34 @@
 ## Операции 
 
 ### Операции с данными
-`load` - 
-`store` - 
+- `load` - загрузка значения ячейки памяти в аккумулятор 
+- `store` - сохранение содержимого аккумулятора в ячейку памяти
 ### Арифметические операции
-`add` - 
-`sub` -
-`cmp` - 
-`mul` -
-`div` - 
-`rem` - 
+- `add` - сложение содержимого аккумулятора и данных из ячейки памяти
+- `sub` - вычитания содержимого аккумулятора и данных из ячейки памяти
+- `cmp` - сравнения содержимого аккумулятора и данных из ячейки памяти
+- `mul` - умножение содержимого аккумулятора и данных из ячейки памяти
+- `div` - деление содержимого аккумулятора и данных из ячейки памяти
+- `rem` - остаток от деления содержимого аккумулятора и данных из ячейки памяти
 
 ### Битовые операции
-`and` - 
-`or` - 
-`xor` - 
-`not` -
-`shift_l` -
-`shift_r` -
+- `and` - логическое "И" содержимого аккумулятора и данных из ячейки памяти
+- `or` - логическое "ИЛИ" содержимого аккумулятора и данных из ячейки памяти
+- `xor` - логическое "Исключающее ИЛИ" содержимого аккумулятора и данных из ячейки памяти
+- `not` - логическое "НЕ" содержимого аккумулятора
+- `shift_l` - побитовый сдвиг влево содержимого аккумулятора (не циключеский)
+- `shift_r` - побитовый сдвиг вправо содержимого аккумулятора (не циключеский)
 
 ### Управляющие операции 
-`bnez` - 
-`beqz` -
-`bgt` - 
-`ble` - 
-`bvs` - 
-`bvc` - 
-`bcs` - 
-`bcc` -
-`halt` - 
-`jmp` - 
+- `bnez` - перейти по адресу, если содержимое аккумулятора НЕ равно 0 
+- `beqz` - перейти по адресу, если содержимое аккумулятора равно 0 
+- `bgt` - перейти по адресу, если содержимое аккумулятора больше 0 
+- `ble` - перейти по адресу, если содержимое аккумулятора меньше 0 
+- `bvs` - перейти по адресу, если флаг Overflow равен 1 
+- `bvc` - перейти по адресу, если флаг Overflow равен 0 
+- `bcs` - перейти по адресу, если флаг Carry равен 1 
+- `bcc` - перейти по адресу, если флаг Carry равен 0 
+- `halt` - останов программы
+- `jmp` - перейти по адресу
 
+## Семантика 
